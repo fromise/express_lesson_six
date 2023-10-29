@@ -8,28 +8,14 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/actors', function(req, res, next) {
+router.put("/actors/:id", function (req, res, next) {
+  let actorId = parseInt(req.params.id);
   models.actor
-    .findAll({include: [{ model: models.film }]})
-    .then(actorsFound => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(actorsFound));
+    .update(req.body, { where: { actor_id: actorId } })
+    .then(result => res.redirect('/actors/' + actorId))
+    .catch(err => {
+      res.status(400);
+      res.send("There was a problem updating the actor.  Please check the actor information.");
     });
 });
-
-router.get('/actors', function(req, res, next) {
-  models.actor
-    .findAll({ 
-      attributes: ['actor_id', 'first_name', 'last_name'],
-      include: [{ 
-        model: models.film, 
-        attributes: ['film_id', 'title', 'description', 'rental_rate', 'rating'] 
-      }]      
-    })
-    .then(actorsFound => {
-      res.setHeader('Content-Type', 'application/json');
-      res.send(JSON.stringify(actorsFound));
-    });
-});
-
 module.exports = router;
